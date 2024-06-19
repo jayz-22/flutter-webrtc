@@ -6,6 +6,7 @@
 #import "FlutterRTCPeerConnection.h"
 #import "FlutterRTCVideoRenderer.h"
 #import "FlutterRTCFrameCryptor.h"
+#import "FlutterRTCRemoteVideoRenderer.h"
 #if TARGET_OS_IPHONE
 #import "FlutterRTCVideoPlatformViewFactory.h"
 #import "FlutterRTCVideoPlatformViewController.h"
@@ -403,6 +404,39 @@ void postEvent(FlutterEventSink _Nonnull sink, id _Nullable event) {
                                    details:nil]);
       }
     }
+  } else if ([@"startRecordToFile" isEqualToString:call.method]) {
+      NSLog(@"iOS startRecordToFile");
+      NSDictionary* argsMap = call.arguments;
+      NSString* path = argsMap[@"path"];
+      NSLog(@"startRecordToFile path: %@", path);
+      NSString* trackId = argsMap[@"trackId"];
+      NSString* peerConnectionId = argsMap[@"peerConnectionId"];
+      
+      if (trackId != nil) {
+          RTCMediaStreamTrack* track = [self trackForId:trackId peerConnectionId:peerConnectionId];
+          if (track != nil && [track isKindOfClass:[RTCVideoTrack class]]) {
+            RTCVideoTrack* videoTrack = (RTCVideoTrack*)track;
+              [self startRecordToOutputPath:path videoTrack:videoTrack completion:^(NSError *error) {
+                  if (error) {
+                      result([FlutterError errorWithCode:@"startRecordToFile failed" message:nil details:nil]);
+                  } else {
+                      result(nil);
+                  }
+              }];
+          }
+      } else {
+          result([FlutterError errorWithCode:@"startRecordToFile failed" message:nil details:nil]);
+      }
+  } else if ([@"stopRecordToFile" isEqualToString:call.method]) {
+      NSLog(@"iOS stopRecordToFile");
+      [self stopRecordWithCompletion:^(NSError *error) {
+          if (error) {
+              result([FlutterError errorWithCode:@"stopRecordToFile failed" message:nil details:nil]);
+          } else {
+              result(nil);
+          }
+      }];
+      
   } else if ([@"setLocalDescription" isEqualToString:call.method]) {
     NSDictionary* argsMap = call.arguments;
     NSString* peerConnectionId = argsMap[@"peerConnectionId"];
@@ -2159,5 +2193,18 @@ void postEvent(FlutterEventSink _Nonnull sink, id _Nullable event) {
     @"receiver" : [self receiverToMap:transceiver.receiver]
   };
   return params;
+}
+
+- (void)startRecordToOutputPath:(NSString *)outputPath
+                  videoTrack:(RTCVideoTrack *)videoTrack
+                  completion:(void (^)(NSError *error))completion {
+    self.remoterVideoRenderer = [[FlutterRTCRemoteVideoRenderer alloc] init];
+    [self.remoterVideoRenderer startRecordingToPath:outputPath videoTrack:videoTrack completion:completion];
+}
+
+- (void)stopRecordWithCompletion:(void (^)(NSError *error))completion {
+    if (self.remoterVideoRenderer) {
+        [self.remoterVideoRenderer stopRecordingWithCompletion:completion];
+    }
 }
 @end
