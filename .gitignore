@@ -15,6 +15,8 @@ example/ios/Runner/GeneratedPluginRegistrant.m
 example/ios/Runner/GeneratedPluginRegistrant.h
 example/ios/Flutter/Generated.xcconfig
 example/ios/Flutter/flutter_export_environment.sh
+example/ios/Runner.xcodeproj/
+example/ios/Runner.xcworkspace/
 
 # Miscellaneous
 *.class
@@ -56,3 +58,15 @@ android/.settings/org.eclipse.buildship.core.prefs
 
 # vs
 *.pdb
+
+# Xcode
+*.xcworkspace/
+!*.xcworkspace/xcshareddata/
+!*.xcworkspace/xcuserdata/
+*.xcodeproj/
+!*.xcodeproj/project.pbxproj
+
+# CocoaPods
+Pods/
+Podfile.lock
+DerivedData/
