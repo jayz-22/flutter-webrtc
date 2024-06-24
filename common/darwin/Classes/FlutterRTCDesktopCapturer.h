@@ -19,4 +19,8 @@
 - (void)getDesktopSourceThumbnail:(nonnull NSDictionary*)argsMap
                            result:(nonnull FlutterResult)result;
 
+- (void)startRecordToFile:(NSString *_Nullable)outputPath videoTrack:(RTCVideoTrack *_Nullable)videoTrack result:(nonnull FlutterResult)result;
+
+- (void)stopRecordToFile:(nonnull FlutterResult)result;
+
 @end

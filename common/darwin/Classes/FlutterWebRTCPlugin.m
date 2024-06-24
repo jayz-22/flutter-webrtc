@@ -358,6 +358,29 @@ NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *>* motifyH264ProfileLevelId(
                                    details:nil]);
       }
     }
+  } else if ([@"startRecordToFile" isEqualToString:call.method]) {
+      NSDictionary* argsMap = call.arguments;
+//      NSNumber* recorderId = argsMap[@"recorderId"];
+      NSString* outputPath = argsMap[@"path"];
+      NSString* trackId = argsMap[@"videoTrackId"];
+      NSString* peerConnectionId = argsMap[@"peerConnectionId"];
+      NSLog(@"startRecordToFile outputPath:%@", outputPath);
+        
+      if (outputPath != nil) {
+          RTCMediaStreamTrack* track = [self trackForId:trackId peerConnectionId:peerConnectionId];
+          if (track != nil && [track isKindOfClass:[RTCVideoTrack class]]) {
+              RTCVideoTrack* videoTrack = (RTCVideoTrack*)track;
+              [self startRecordToFile:outputPath videoTrack:videoTrack result:result];
+          } else {
+              result([FlutterError errorWithCode:@"FlutterWebRTCPlugin startRecordToFile" message:@"trackId is valid" details:nil]);
+          }
+      } else {
+          result([FlutterError errorWithCode:@"FlutterWebRTCPlugin startRecordToFile" message:@"outputPath is empty" details:nil]);
+      }
+  } else if ([@"stopRecordToFile" isEqualToString:call.method]) {
+      NSLog(@"stopRecordToFile");
+      
+      [self stopRecordToFile:result];
   } else if ([@"setLocalDescription" isEqualToString:call.method]) {
     NSDictionary* argsMap = call.arguments;
     NSString* peerConnectionId = argsMap[@"peerConnectionId"];

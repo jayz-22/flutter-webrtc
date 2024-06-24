@@ -6,6 +6,7 @@
 #import <ReplayKit/ReplayKit.h>
 #import "FlutterBroadcastScreenCapturer.h"
 #import "FlutterRPScreenRecorder.h"
+#import "FlutterRTCMediaRecorder.h"
 #endif
 
 #if TARGET_OS_OSX
@@ -413,5 +414,30 @@ NSArray<RTCDesktopSource*>* _captureSources;
 }
 
 #endif
+
+- (void)startRecordToFile:(NSString *_Nullable)outputPath videoTrack:(RTCVideoTrack *_Nullable)videoTrack result:(nonnull FlutterResult)result{
+    self.mediaRecorder = [[FlutterRTCMediaRecorder alloc] initWithOutputPath:outputPath videoTrack:videoTrack];
+    [self.mediaRecorder startWithCompletion:^(NSError *error) {
+        if (error) {
+            result([FlutterError errorWithCode:error.domain message:error.localizedDescription details:nil]);
+        } else {
+            result(nil);
+        }
+    }];
+}
+
+- (void)stopRecordToFile:(nonnull FlutterResult)result {
+    if (self.mediaRecorder) {
+        [self.mediaRecorder stopWithCompletion:^(NSError *error) {
+            if (error) {
+                result([FlutterError errorWithCode:error.domain message:error.localizedDescription details:nil]);
+            } else {
+                result(nil);
+            }
+        }];
+    } else {
+        result([FlutterError errorWithCode:@"FlutterWebRTCPlugin stopRecordToFile" message:@"media recorder is valid" details:nil]);
+    }
+}
 
 @end
